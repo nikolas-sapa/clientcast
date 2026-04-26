@@ -1,0 +1,11 @@
+src
+tests
+viewer
+docs
+assets
+.github
+.vscode
+*.test.ts
+tsconfig.json
+vitest.config.ts
+.gitignore
