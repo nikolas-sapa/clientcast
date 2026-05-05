@@ -15,8 +15,8 @@ export function ScopeCreepFlagList({ flags }: { flags: ScopeCreepFlag[] }) {
   return (
     <div className="space-y-3">
       <p className="text-sm text-neutral-700">
-        {flags.length} item{flags.length === 1 ? '' : 's'} appear{flags.length === 1 ? 's' : ''} to fall outside the original scope.
-        Estimated impact: <span className="font-semibold">{formatCurrency(total)}</span>.
+        {flags.length} item{flags.length === 1 ? '' : 's'} look{flags.length === 1 ? 's' : ''} like additional work beyond the original project scope.
+        Estimated additional cost: <span className="font-semibold">{formatCurrency(total)}</span>.
       </p>
       <ul className="space-y-2">
         {flags.map((f) => (

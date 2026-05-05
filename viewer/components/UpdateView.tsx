@@ -64,7 +64,7 @@ export function UpdateView({ update }: { update: Update }) {
       {update.scopeCreepFlags.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-amber-700">
-            Scope review
+            Additional work estimate
           </h2>
           <ScopeCreepFlagList flags={update.scopeCreepFlags} />
         </section>

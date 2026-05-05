@@ -28,11 +28,13 @@ program
 
 program
   .command('send')
-  .description('Generate and upload a client update')
+  .description('Generate, upload, and email a client update')
   .option('--since <ref>', 'git ref or date to start from')
   .option('--model <model>', 'claude model (sonnet|opus|haiku)', 'sonnet')
   .option('--limit <n>', 'max commits to include', '50')
   .option('--dry-run', 'print update without uploading')
+  .option('--no-email', 'skip email delivery (just upload)')
+  .option('--from <addr>', 'override the From: address (default uses RESEND_API_KEY default)')
   .action(async (opts) => { await sendCommand(opts); });
 
 program

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Council — clientcast feature roadmap</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: #fafaf9;
+    color: #1a1a1a;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  .header-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .header-meta {
+    font-size: 13px;
+    color: #888;
+  }
+
+  /* Question block */
+  .question-block {
+    background: #f3f4f6;
+    border-left: 3px solid #9ca3af;
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 40px;
+    font-size: 14px;
+    color: #444;
+    line-height: 1.7;
+  }
+  .question-block strong { color: #111; }
+
+  /* Verdict — top card */
+  .verdict {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  }
+  .verdict-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 24px;
+  }
+
+  .verdict-section { margin-bottom: 28px; }
+  .verdict-section:last-child { margin-bottom: 0; }
+  .verdict-section h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 10px;
+  }
+  .verdict-section p, .verdict-section li {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.75;
+  }
+  .verdict-section ul { padding-left: 20px; }
+  .verdict-section li { margin-bottom: 4px; }
+
+  /* One thing */
+  .one-thing {
+    background: #111;
+    color: #fff;
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 40px;
+  }
+  .one-thing-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  .one-thing p {
+    font-size: 15px;
+    color: #f5f5f5;
+    line-height: 1.7;
+  }
+  .one-thing strong { color: #fff; }
+
+  /* Agreement grid */
+  .alignment-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 40px;
+  }
+  .advisor-card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    font-size: 12px;
+  }
+  .advisor-card .name {
+    font-weight: 700;
+    color: #111;
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  .advisor-card .tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .tag-align { background: #dcfce7; color: #166534; }
+  .tag-clash { background: #fef9c3; color: #854d0e; }
+  .tag-neutral { background: #f3f4f6; color: #555; }
+
+  /* Section headers */
+  .section-header {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin: 48px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  /* Advisor detail cards */
+  details {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  details[open] { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+
+  summary {
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #111;
+    list-style: none;
+    user-select: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: '+';
+    margin-left: auto;
+    font-size: 18px;
+    font-weight: 400;
+    color: #999;
+    transition: transform 0.2s;
+  }
+  details[open] summary::after { content: '−'; }
+
+  .advisor-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-contrarian   { background: #ef4444; }
+  .dot-firstprinciples { background: #3b82f6; }
+  .dot-expansionist { background: #22c55e; }
+  .dot-outsider     { background: #f59e0b; }
+  .dot-executor     { background: #8b5cf6; }
+
+  .advisor-body {
+    padding: 0 20px 20px;
+    font-size: 14px;
+    color: #444;
+    line-height: 1.75;
+  }
+  .advisor-body p { margin-bottom: 12px; }
+  .advisor-body p:last-child { margin-bottom: 0; }
+  .advisor-body strong { color: #111; }
+
+  /* Peer reviews */
+  .review-block {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .review-header {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    background: #fafaf9;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .review-body {
+    padding: 16px 20px;
+    font-size: 13px;
+    color: #444;
+    line-height: 1.75;
+  }
+  .review-q {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #999;
+    margin-bottom: 4px;
+    margin-top: 14px;
+  }
+  .review-q:first-child { margin-top: 0; }
+
+  /* Roadmap items */
+  .roadmap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .roadmap-item {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .roadmap-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: #999;
+    background: #f3f4f6;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .roadmap-content h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 3px;
+  }
+  .roadmap-content p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .effort-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+    background: #f3f4f6;
+    padding: 2px 8px;
+    border-radius: 100px;
+    display: inline-block;
+    margin-top: 6px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e5e5;
+    font-size: 12px;
+    color: #aaa;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-label">LLM Council Report</div>
+    <h1>What features must clientcast add to become<br>the undisputed king of its category?</h1>
+    <div class="header-meta">5 advisors · 5 peer reviews · 1 chairman synthesis &nbsp;·&nbsp; 2026-05-05</div>
+  </div>
+
+  <!-- Question -->
+  <div class="question-block">
+    <strong>The question:</strong> clientcast (v0.1.0) is a CLI that reads git commits, drafts AI client updates, uploads to a hosted no-login approval page, and flags scope creep with dollar estimates. What features are missing? What's the highest-leverage addition? What would make it genuinely defensible against HoneyBook, Basecamp, and Notion?
+  </div>
+
+  <!-- One Thing -->
+  <div class="one-thing">
+    <div class="one-thing-label">The One Thing to Do First</div>
+    <p><strong>Add Resend email delivery.</strong> Install <code>resend</code>, add <code>clientcast send --email</code> (or make it default), and send a branded HTML email directly to <code>clientEmail</code> in <code>.clientcast.json</code> when an update is ready. One button: "Review &amp; Approve." This closes the manual copy-paste gap that kills adoption, makes the tool feel complete, and is the single highest-impact change relative to effort in the entire council.</p>
+  </div>
+
+  <!-- Alignment grid -->
+  <div class="section-header">Advisor Alignment</div>
+  <div class="alignment-grid">
+    <div class="advisor-card">
+      <div class="name">Contrarian</div>
+      <span class="tag tag-clash">distribution problem</span>
+    </div>
+    <div class="advisor-card">
+      <div class="name">First Principles</div>
+      <span class="tag tag-align">paper trail moat</span>
+    </div>
+    <div class="advisor-card">
+      <div class="name">Expansionist</div>
+      <span class="tag tag-align">invoice + portal</span>
+    </div>
+    <div class="advisor-card">
+      <div class="name">Outsider</div>
+      <span class="tag tag-align">email + trust</span>
+    </div>
+    <div class="advisor-card">
+      <div class="name">Executor</div>
+      <span class="tag tag-align">email → CO → webhook</span>
+    </div>
+  </div>
+
+  <!-- Chairman verdict -->
+  <div class="section-header">Chairman's Verdict</div>
+  <div class="verdict">
+    <div class="verdict-title">Council Findings</div>
+
+    <div class="verdict-section">
+      <h2>Where the Council Agrees</h2>
+      <ul>
+        <li><strong>Email delivery is the #1 missing feature.</strong> Two independent advisors (Outsider + Executor) converged on the same gap. The current workflow requires manually copying a URL and pasting it into an email — four steps after clientcast's value is already delivered. This is the leakiest point in the funnel.</li>
+        <li><strong>Scope creep detection needs client-facing transparency.</strong> Three advisors flagged — from different angles — that scope flags in a local JSON file the client never sees are useless legally and potentially awkward relationally. The fix: scope change items with explicit client acknowledgment on the approval page.</li>
+        <li><strong>The approval experience needs to feel like it came from the freelancer.</strong> The Outsider called out the <code>clientcast.vercel.app/u/8af2k3lq01</code> URL problem. Branding and professional polish on the viewer are trust infrastructure, not cosmetics.</li>
+      </ul>
+    </div>
+
+    <div class="verdict-section">
+      <h2>Where the Council Clashes</h2>
+      <p><strong>Developer-only vs. broader freelancer market.</strong> The Contrarian argues the Claude Code dependency is a fatal ceiling — limiting clientcast to the terminal-native minority. The Expansionist argues the developer-freelancer niche is a legitimate beachhead and the MCP/agent integration is an expansion path into a larger future market. Both are right about different timeframes. Resolution: own the developer niche now, plan expansion architecture for later.</p>
+      <br>
+      <p><strong>Feature breadth vs. depth.</strong> The Expansionist wants portals, invoices, team mode, and Stripe. The Executor wants email + change order + webhook only. The Executor is correct <em>right now</em>. None of the expansion features have value without a retained user base. Build depth in the core loop before adding breadth.</p>
+    </div>
+
+    <div class="verdict-section">
+      <h2>Blind Spots the Council Caught</h2>
+      <ul>
+        <li><strong>Legal toothlessness of current scope detection.</strong> Scope creep flagged in <code>~/.clientcast/</code> has zero legal standing. The fix: client-acknowledged scope changes on the approval page — a checkbox before the client can approve: "I understand this item is outside original scope." Turns a local convenience into protective legal record.</li>
+        <li><strong>The habit formation problem.</strong> Nothing in the current feature set creates a weekly ritual. A <code>clientcast schedule weekly</code> cron-based reminder closes this gap and prevents clientcast from being a tool people install and forget.</li>
+        <li><strong>Competitor window.</strong> HoneyBook, Bonsai, and Dubsado are adding AI features now. The window to establish clientcast as the default is probably 6–12 months before better-funded tools ship "generate status update" to their existing user bases.</li>
+      </ul>
+    </div>
+
+    <div class="verdict-section">
+      <h2>The Recommendation</h2>
+      <p>Build email delivery and client-acknowledged scope changes first. These are independently motivated by multiple advisors and close the two biggest value gaps in the current product. Then change order generator (drives word-of-mouth + retention), then webhooks (agency trust), then tone control (prevents rewrite churn). Hold portals, team mode, and Stripe for month two — they require a user base to matter.</p>
+    </div>
+  </div>
+
+  <!-- Recommended roadmap -->
+  <div class="section-header">Recommended Build Order</div>
+  <div class="roadmap">
+    <div class="roadmap-item">
+      <div class="roadmap-num">1</div>
+      <div class="roadmap-content">
+        <h3>Email delivery via Resend</h3>
+        <p>Add <code>clientcast send --email</code>. Send branded HTML email to <code>clientEmail</code> with one "Review &amp; Approve" button. Closes the manual copy-paste gap that kills adoption.</p>
+        <span class="effort-badge">~3–4 days</span>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-num">2</div>
+      <div class="roadmap-content">
+        <h3>Client-acknowledged scope changes</h3>
+        <p>When scope creep is detected, surface flagged items on the approval page with explicit acknowledgment checkbox: "I understand this item is outside original scope." Turns local noise into legal paper trail.</p>
+        <span class="effort-badge">~2 days</span>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-num">3</div>
+      <div class="roadmap-content">
+        <h3>Change order generator</h3>
+        <p><code>clientcast change-order &lt;id&gt;</code> outputs a formatted Markdown (+ optional PDF) change order with flagged items, hours, total cost, and acknowledgment line. The "I just made money from this tool" moment.</p>
+        <span class="effort-badge">~2 days</span>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-num">4</div>
+      <div class="roadmap-content">
+        <h3>Webhook on approval</h3>
+        <p>Optional <code>webhookUrl</code> in config. POST <code>{updateId, projectId, status, timestamp}</code> when client approves. Unlocks Zapier/Make/Slack/FreshBooks integrations. Agency trust feature.</p>
+        <span class="effort-badge">~1 day</span>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-num">5</div>
+      <div class="roadmap-content">
+        <h3>Tone control for drafts</h3>
+        <p><code>tone</code> field in <code>.clientcast.json</code> (e.g. <code>"friendly"</code>, <code>"brief"</code>, <code>"formal"</code>) passed to the Claude prompt. Prevents "I have to rewrite every AI draft" churn.</p>
+        <span class="effort-badge">~1 day</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advisor responses -->
+  <div class="section-header">Advisor Responses</div>
+
+  <details>
+    <summary>
+      <span class="advisor-dot dot-contrarian"></span>
+      The Contrarian
+    </summary>
+    <div class="advisor-body">
+      <p>The fatal flaw in clientcast isn't the features — it's the distribution. clientcast requires Claude Code CLI installed and logged in. Your actual target user — the freelancer, the small agency — is not running Claude Code. They're on Figma, Notion, Gmail, and Linear. You've built a tool for developers who already live in the terminal, which is maybe 5–10% of all freelancers. You're not building for the market, you're building for yourself.</p>
+      <p>The scope creep detection is clever but legally toothless. Flagging scope creep in a local JSON file that the client never sees has no binding power. When a real scope dispute happens, a private <code>~/.clientcast/</code> log means nothing. Without client-facing acknowledgment, the feature is local noise.</p>
+      <p>The Vercel Blob storage is a ticking PR bomb. Commit messages, scope docs, and client names in publicly-readable blobs. One security researcher writes a thread and the tool is dead on arrival. The README privacy disclaimer doesn't count — users don't read READMEs.</p>
+      <p><strong>The highest-leverage addition isn't a feature. It's making clientcast work without Claude Code on PATH.</strong> As long as <code>claude</code> binary is required, clientcast is a developer toy, not a freelancer tool. That's the ceiling.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <span class="advisor-dot dot-firstprinciples"></span>
+      The First Principles Thinker
+    </summary>
+    <div class="advisor-body">
+      <p>Strip away everything. What problem does a freelancer actually have? Not "writing status updates." That's a symptom. The root problems are: (1) clients don't understand what they paid for; (2) clients ask for more work without realizing it costs more; (3) freelancers have no leverage — no paper trail, no proof; (4) the relationship fails not because the work was bad, but because expectations weren't managed.</p>
+      <p>clientcast partially solves #1 and #2. It ignores #3 and #4 entirely.</p>
+      <p>The highest-leverage missing feature is <strong>timestamped, client-acknowledged documentation</strong>. Every exchange on record: what was agreed (scope doc), what was delivered (update drafts), what was approved (client sign-off), what was requested outside scope. Right now, scope creep flags live in a local JSON file the client never sees. Useless as evidence.</p>
+      <p>The defensible moat isn't AI drafting — anyone can wrap Claude. <strong>The moat is being the contractual layer of the freelancer-client relationship.</strong> If every scope change requires the client to explicitly acknowledge "I understand this is outside the original scope," clientcast becomes the legal paper trail that protects freelancers financially and professionally.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <span class="advisor-dot dot-expansionist"></span>
+      The Expansionist
+    </summary>
+    <div class="advisor-body">
+      <p>The real opportunity isn't "better status updates for freelancers." It's the first AI-native engagement layer sitting between code and money. clientcast sits between the work (git commits) and the relationship (client satisfaction → payment → referrals). Every other tool is upstream or downstream. Nobody owns the relationship layer for developer freelancers.</p>
+      <p><strong>Expansion path 1 — Invoice generation from approvals.</strong> When a client approves an update, clientcast knows exactly what was delivered. That's an invoice. <code>clientcast invoice &lt;id&gt;</code> + Stripe payment links. Now clientcast is in the money flow — that's where retention and LTV live.</p>
+      <p><strong>Expansion path 2 — Brandable client portal.</strong> Instead of one-off links, give each client a permanent portal URL. They bookmark it, see all updates and approval history. Agency logo and colors on a custom subdomain = competitive advantage agencies show during sales pitches.</p>
+      <p><strong>Expansion path 3 — AI-agent handshake.</strong> The MCP server is the most underrated feature in the repo. When autonomous coding agents become the norm, clientcast is already the communication layer. <code>client_send()</code> called automatically at sprint end. Clients receive AI-drafted updates about AI-generated code. clientcast isn't a freelancer tool at that point — it's infrastructure for the future of software delivery.</p>
+      <p><strong>Expansion path 4 — Team/agency mode.</strong> One account manager, five devs, twenty clients. A dashboard showing all project update statuses. $49/month SaaS that agencies expense without thinking.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <span class="advisor-dot dot-outsider"></span>
+      The Outsider
+    </summary>
+    <div class="advisor-body">
+      <p>I'm a graphic designer who does some web work. I don't use Claude Code. Here's my honest reaction: "Reads your git commits" — I barely know what a git commit is. My clients definitely don't. This immediately signals "for developers only." If the tagline includes the word "commits," you've already lost non-developer freelancers.</p>
+      <p>"No-login approval page" — genuinely the best idea here. My clients hate making accounts. One link, no login, click to approve — that's the dream. But if the URL is <code>clientcast.vercel.app/u/8af2k3lq01</code>, my client asks "what is this?" That's a trust problem. It needs to look like it came from me.</p>
+      <p><strong>The biggest missing feature: email.</strong> Not "copy this URL." An actual email, sent to the client's inbox, that looks like it's from me, with one button. The current flow has a manual copy-paste step that will kill adoption for anyone who isn't terminal-first.</p>
+      <p><strong>Second: tone control.</strong> The AI draft might sound too formal, too casual, or too technical. I need a way to say "friendly but professional" without editing every draft from scratch. Otherwise I'll rewrite every update and the value proposition dies.</p>
+      <p><strong>Third: scope creep transparency.</strong> If my client ever asks "did your tool flag my request as scope creep?" I have an awkward conversation. Make the transparency a feature — show the client "this item was flagged as new scope" — and it becomes a professional differentiator instead of a liability.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>
+      <span class="advisor-dot dot-executor"></span>
+      The Executor
+    </summary>
+    <div class="advisor-body">
+      <p>Stop thinking about the product vision and ship the three things that drive installs this week.</p>
+      <p><strong>1. Email delivery via Resend (3–4 days).</strong> The current flow: draft update → copy URL → open email client → paste URL → write email → send. That's four manual steps after clientcast's value is already delivered. <code>clientcast send --email</code> via Resend (free: 3,000/month). Email has the freelancer's name in From, subject "Update: [Project Name] — [date]", one button: "Review &amp; Approve." Highest drop-off point in the workflow, fixable in a weekend.</p>
+      <p><strong>2. Change order generator (2 days).</strong> When scope creep is detected, there's no action to take. <code>clientcast change-order &lt;updateId&gt;</code> generates a formatted Markdown change order with flagged items, estimated hours, total cost, and a signature line. This is the "I just avoided a $960 argument" moment — the use case that makes someone tweet about clientcast and converts a trial user into a committed one.</p>
+      <p><strong>3. Webhook on approval (1 day).</strong> Optional <code>webhookUrl</code> in <code>.clientcast.json</code>. When client approves, viewer API POSTs <code>{updateId, projectId, status, timestamp}</code>. Now clientcast talks to Zapier, Make, Slack, anything. This is the feature that makes agency principals trust it even if their devs are the ones who installed it.</p>
+      <p>These three features take 6–8 days total. Skip portals, team mode, invoice generation — those are month two.</p>
+    </div>
+  </details>
+
+  <!-- Peer reviews -->
+  <div class="section-header">Peer Reviews (anonymized during review)</div>
+
+  <details>
+    <summary>Review 1</summary>
+    <div class="advisor-body">
+      <div class="review-q">Strongest response</div>
+      <p>C (Contrarian). The distribution problem — requiring Claude Code on PATH — is the one fatal flaw nobody else named. Every other advisor assumes the tool works and asks what to add. C asks whether the tool can reach its stated audience at all. That's the most important question.</p>
+      <div class="review-q">Biggest blind spot</div>
+      <p>A (Expansionist). All expansion paths assume a large user base that doesn't exist yet. The pitch is compelling but skips the acquisition problem entirely.</p>
+      <div class="review-q">What all missed</div>
+      <p>The legal angle. Scope creep flagged internally has zero standing. Nobody proposed the concrete fix: require the client to acknowledge scope changes on the approval page before seeing the cost estimate. That's the feature that turns clientcast from a convenience tool into a professional protection tool.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Review 2</summary>
+    <div class="advisor-body">
+      <div class="review-q">Strongest response</div>
+      <p>E (Executor). The only response with a Monday morning action plan. Every other advisor gives strategic perspectives; E gives a sequence with time estimates. When deciding what to build, build order matters as much as strategy.</p>
+      <div class="review-q">Biggest blind spot</div>
+      <p>D (Executor's own). Builds on top of the current architecture without questioning whether the Claude Code dependency is a distribution-limiting constraint. You can add email, change orders, and webhooks — and still have 5% penetration.</p>
+      <div class="review-q">What all missed</div>
+      <p>Customer support burden. No-login pages, AI-classified replies, and public blobs create support requests nobody named: "my client said they approved but status shows pending," "the AI classified my client's reply wrong," "my client's IT blocked the Vercel domain."</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Review 3</summary>
+    <div class="advisor-body">
+      <div class="review-q">Strongest response</div>
+      <p>B (Outsider). The email delivery insight is the most grounded, least debatable addition in the entire council. Only B and D named the specific workflow gap between "clientcast drafts an update" and "client actually sees it."</p>
+      <div class="review-q">Biggest blind spot</div>
+      <p>C (Contrarian). Identifies real problems but proposes no solutions. "Remove the Claude Code dependency" is presented as a ceiling observation, not a direction. What does clientcast look like without that dependency?</p>
+      <div class="review-q">What all missed</div>
+      <p>The repeat-use problem. Nobody asked what makes a freelancer run <code>clientcast send</code> again next week. The habit formation mechanism is entirely absent. Email delivery helps with completion but doesn't create a send ritual.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Review 4</summary>
+    <div class="advisor-body">
+      <div class="review-q">Strongest response</div>
+      <p>E (Executor). Concrete, sequenced, time-estimated. Resend integration is genuinely a one-weekend project. Change order generator is genuinely the "I made money" moment. Webhook is genuinely the agency-trust feature.</p>
+      <div class="review-q">Biggest blind spot</div>
+      <p>B (Outsider). Most user-grounded but stops at surface-level UX observations. "It should look professional" is real but doesn't reach the structural question: is the CLI category even right for the audience?</p>
+      <div class="review-q">What all missed</div>
+      <p>Pricing and packaging. clientcast is currently free. None of the advisors addressed what the monetization model should be, and that choice directly constrains which features to build. Team dashboard ideas only make sense in a paid model.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Review 5</summary>
+    <div class="advisor-body">
+      <div class="review-q">Strongest response</div>
+      <p>E (Executor). The build sequence — email → change order → webhook — is the most defensible feature roadmap in the council. Each item is independently valuable, composable with existing infrastructure, and closes a specific gap.</p>
+      <div class="review-q">Biggest blind spot</div>
+      <p>A (Expansionist). The AI-agent handshake expansion path is genuinely interesting but framed as a marketing story rather than a product feature. What's the concrete next step? Without that, it's a vision without a path.</p>
+      <div class="review-q">What all missed</div>
+      <p>Competitor response urgency. HoneyBook, Bonsai, and Dubsado are adding AI features now. The window to establish clientcast as the default is probably 6–12 months before better-funded tools ship "AI status updates" to existing user bases. Nobody framed the time pressure.</p>
+    </div>
+  </details>
+
+  <!-- Footer -->
+  <div class="footer">
+    LLM Council &nbsp;·&nbsp; clientcast feature roadmap &nbsp;·&nbsp; 2026-05-05 14:08 UTC+3<br>
+    Full transcript: <code>council-transcript-20260505.md</code>
+  </div>
+
+</div>
+</body>
+</html>

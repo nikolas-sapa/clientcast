@@ -1,6 +1,6 @@
 {
   "name": "clientcast",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AI-drafted client updates from your Git commits. Hosted approval. Scope-creep alerts with cost estimates.",
   "type": "module",
   "main": "dist/cli.js",
@@ -8,7 +8,9 @@
     "clientcast": "dist/cli.js",
     "clientcast-mcp": "dist/mcp/server.js"
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/cli.ts",
@@ -31,13 +33,18 @@
   ],
   "license": "MIT",
   "author": "Nikolas Sapalidis <nikolas.sapalidis@gmail.com>",
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@vercel/blob": "^2.3.3",
     "commander": "^12.1.0",
     "execa": "^9.5.0",
     "nanoid": "^5.0.0",
+    "resend": "^6.12.2",
     "simple-git": "^3.27.0",
     "zod": "^3.24.0"
   },

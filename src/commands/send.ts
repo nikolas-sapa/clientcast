@@ -5,6 +5,7 @@ import { claudeAvailable, claudeJSON } from '../lib/claude.js';
 import { uploadUpdate } from '../lib/blob.js';
 import { draftUpdatePrompt } from '../lib/prompts.js';
 import { renderEmail } from '../lib/format.js';
+import { deliverUpdateEmail } from '../lib/email.js';
 import type { Update, UpdateDraft } from '../lib/types.js';
 import { saveUpdateLocal } from '../lib/local-store.js';
 
@@ -13,6 +14,8 @@ export interface SendOptions {
   model?: 'sonnet' | 'opus' | 'haiku';
   dryRun?: boolean;
   limit?: string;
+  noEmail?: boolean;
+  from?: string;
 }
 
 export interface SendResult {
@@ -20,6 +23,8 @@ export interface SendResult {
   url?: string;
   preview: { subject: string; body: string };
   commitsCount: number;
+  emailDelivered?: boolean;
+  emailReason?: string;
 }
 
 export async function sendCommand(opts: SendOptions = {}): Promise<SendResult> {
@@ -87,8 +92,30 @@ export async function sendCommand(opts: SendOptions = {}): Promise<SendResult> {
 
   const url = `${config.viewerUrl}/u/${update.id}`;
   console.log('');
-  console.log(`✓ Update ready: ${url}`);
-  console.log(`Send this link to ${config.clientName} for review.`);
+  console.log(`✓ Update uploaded: ${url}`);
 
-  return { updateId: update.id, url, preview, commitsCount: commits.length };
+  let emailDelivered: boolean | undefined;
+  let emailReason: string | undefined;
+
+  if (opts.noEmail) {
+    console.log(`(--no-email — skipping delivery. Send this link to ${config.clientName}.)`);
+  } else {
+    console.log(`Delivering to ${config.clientEmail}...`);
+    const result = await deliverUpdateEmail({
+      update,
+      to: config.clientEmail,
+      from: opts.from,
+      viewerUrl: config.viewerUrl,
+    });
+    emailDelivered = result.delivered;
+    emailReason = result.reason;
+    if (result.delivered) {
+      console.log(`✓ Email delivered to ${config.clientEmail}`);
+    } else {
+      console.log(`(email not delivered: ${result.reason})`);
+      console.log(`Send the link manually: ${url}`);
+    }
+  }
+
+  return { updateId: update.id, url, preview, commitsCount: commits.length, emailDelivered, emailReason };
 }

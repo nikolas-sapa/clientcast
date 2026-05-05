@@ -1,15 +1,18 @@
 # clientcast
 
-AI-drafted client updates from your Git commits. Hosted approval. Scope-creep alerts with cost estimates. Built on Claude Code.
+**Get paid faster for the work you already ship.**
+
+clientcast turns your Git commits into a client update email, delivers it for you, and tells you whether the reply was an approval, real feedback, or a request for additional work — with hours and dollars attached. Built on Claude Code.
 
 > **Why this exists.** Freelancers and agencies bleed hours on status updates and "can you also..." emails that quietly become unpaid work. clientcast reads your commits, drafts a plain-English update for the client, and when the client replies, Claude tells you whether it was approval, feedback, a concern, or scope creep — with hours and dollars attached.
 
 ## What you get
 
 - **`clientcast`** — CLI that reads recent commits and drafts a client update with Claude
+- **Auto-email delivery** — `clientcast send` ships the update straight to your client's inbox via Resend (no manual copy-paste)
 - **Hosted approval page** — a no-login link your client opens to read, comment, and approve
-- **Reply classifier** — Claude tags every reply as `approve`, `feedback`, `scope_creep`, `concern`, or `mixed`
-- **Scope-creep flagger** — when a reply asks for new work, you get an estimate in hours and dollars based on your hourly rate and original scope doc
+- **Reply classifier** — Claude tags every reply as approve, feedback, additional-work, concern, or mixed
+- **Additional-work flagger** — when a reply asks for new work, you get an estimate in hours and dollars based on your hourly rate and original scope doc
 - **`clientcast-mcp`** — MCP server so Claude Code agents can drive the whole loop from inside any session
 
 ## Requirements
@@ -17,6 +20,7 @@ AI-drafted client updates from your Git commits. Hosted approval. Scope-creep al
 - Node 20+
 - Claude Code CLI installed and signed in (`claude` command on PATH) — uses your Pro/Max subscription, no API key needed for the CLI
 - A git repository
+- (For email delivery) `RESEND_API_KEY` env var — get one free at [resend.com](https://resend.com). Without it, `clientcast send` still uploads and prints the URL — you just have to email it yourself.
 
 The hosted viewer additionally needs `BLOB_READ_WRITE_TOKEN` (Vercel Blob) and `ANTHROPIC_API_KEY` set as deployment env vars — only the viewer hits the API directly because Vercel can't spawn the `claude` subprocess.
 
