@@ -61,12 +61,42 @@ export function UpdateView({ update }: { update: Update }) {
         </ul>
       </section>
 
+      {update.previewUrl && (
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+            Live preview
+          </h2>
+          <a
+            href={update.previewUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block overflow-hidden rounded-lg border border-neutral-200 transition-colors hover:border-neutral-400"
+          >
+            <div className="border-b border-neutral-200 bg-neutral-50 px-4 py-2 text-xs text-neutral-600">
+              {update.previewUrl}
+            </div>
+            <div className="aspect-video bg-neutral-100">
+              <iframe
+                src={update.previewUrl}
+                className="h-full w-full"
+                sandbox="allow-scripts allow-same-origin"
+                loading="lazy"
+              />
+            </div>
+          </a>
+        </section>
+      )}
+
       {update.scopeCreepFlags.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-amber-700">
             Additional work estimate
           </h2>
-          <ScopeCreepFlagList flags={update.scopeCreepFlags} />
+          <ScopeCreepFlagList
+            flags={update.scopeCreepFlags}
+            updateId={update.id}
+            stripeEnabled={update.stripeEnabledSnapshot}
+          />
         </section>
       )}
 

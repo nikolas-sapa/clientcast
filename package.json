@@ -1,6 +1,6 @@
 {
   "name": "clientcast",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "AI-drafted client updates from your Git commits. Hosted approval. Scope-creep alerts with cost estimates.",
   "type": "module",
   "main": "dist/cli.js",

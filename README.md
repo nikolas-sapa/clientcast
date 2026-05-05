@@ -11,8 +11,12 @@ clientcast turns your Git commits into a client update email, delivers it for yo
 - **`clientcast`** — CLI that reads recent commits and drafts a client update with Claude
 - **Auto-email delivery** — `clientcast send` ships the update straight to your client's inbox via Resend (no manual copy-paste)
 - **Hosted approval page** — a no-login link your client opens to read, comment, and approve
+- **Live preview embed** — point at your Vercel/Netlify deploy and the update page shows the actual site, not just commits
 - **Reply classifier** — Claude tags every reply as approve, feedback, additional-work, concern, or mixed
 - **Additional-work flagger** — when a reply asks for new work, you get an estimate in hours and dollars based on your hourly rate and original scope doc
+- **One-click Stripe invoicing** — when additional work is flagged, click "Approve & invoice" to generate a Stripe payment link, in-page, no leaving the viewer
+- **Reply notifications** — Slack webhook or email-back to you the moment your client replies
+- **Multi-project dashboard** — `/projects/<token>` lists every update for a project with totals, status, and flagged work in one view
 - **`clientcast-mcp`** — MCP server so Claude Code agents can drive the whole loop from inside any session
 
 ## Requirements
@@ -22,7 +26,11 @@ clientcast turns your Git commits into a client update email, delivers it for yo
 - A git repository
 - (For email delivery) `RESEND_API_KEY` env var — get one free at [resend.com](https://resend.com). Without it, `clientcast send` still uploads and prints the URL — you just have to email it yourself.
 
-The hosted viewer additionally needs `BLOB_READ_WRITE_TOKEN` (Vercel Blob) and `ANTHROPIC_API_KEY` set as deployment env vars — only the viewer hits the API directly because Vercel can't spawn the `claude` subprocess.
+The hosted viewer needs these deployment env vars:
+- `BLOB_READ_WRITE_TOKEN` (Vercel Blob) — required
+- `ANTHROPIC_API_KEY` — required (the viewer can't spawn `claude` so it hits the API directly)
+- `RESEND_API_KEY` — optional, enables reply-notification emails to the developer
+- `STRIPE_SECRET_KEY` — optional, enables one-click invoicing on flagged additional work
 
 ## Install
 
@@ -68,7 +76,7 @@ clientcast status
 
 | Command | What it does |
 |---|---|
-| `clientcast init` | Initialize the project — creates `.clientcast.json` |
+| `clientcast init` | Initialize the project — creates `.clientcast.json` (asks for client info, hourly rate, scope, dev email, preview URL, Slack webhook) |
 | `clientcast send [--since <ref>]` | Draft + upload an update from recent commits |
 | `clientcast preview` | Same as `send --dry-run` |
 | `clientcast list [--all]` | List recent updates |
@@ -81,6 +89,28 @@ clientcast status
 - `--since <ref>` — git ref or date to start from (default: all commits)
 - `--model <sonnet\|opus\|haiku>` — pick model (default `sonnet`)
 - `--limit <n>` — max commits to include (default 50)
+- `--no-email` — skip auto-delivery, just upload + return URL
+- `--from <addr>` — override sender on the email
+- `--preview-url <url>` — override the live preview URL embedded in this update
+
+## Reply notifications
+
+When a client replies, Claude classifies the reply server-side and pings you. Pick one channel during `clientcast init`:
+
+- **Slack** — paste an Incoming Webhook URL. You get a formatted message with classification, reply text, and any flagged work.
+- **Email** — provide your dev email. You get a styled HTML email with the reply and flag summary.
+
+If neither is set, replies are silent (you check `clientcast status`).
+
+## Stripe — turn flagged work into paid work
+
+Add `STRIPE_SECRET_KEY` to your viewer deployment, set `stripeEnabled: true` in `.clientcast.json`, and any flagged additional work in the client view gets an "Approve & invoice $X" button. Click it → Stripe payment link generated → client pays → you get notified by Stripe. The flag stores the `paymentLink` so reloading the page shows a "Pay $X →" CTA instead.
+
+This is the closed loop: `git commit` → AI summary → client reply → flagged work → payment link → money in bank.
+
+## Multi-project dashboard
+
+Every project gets a unique `projectToken` at init. Visit `<viewerUrl>/projects/<token>` to see every update for that project — status, flagged work totals, reply counts. Bookmark it for clients you have ongoing work with.
 
 ## MCP server — drive clientcast from Claude Code
 

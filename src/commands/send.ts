@@ -6,6 +6,7 @@ import { uploadUpdate } from '../lib/blob.js';
 import { draftUpdatePrompt } from '../lib/prompts.js';
 import { renderEmail } from '../lib/format.js';
 import { deliverUpdateEmail } from '../lib/email.js';
+import { appendToProjectIndex } from '../lib/project-index.js';
 import type { Update, UpdateDraft } from '../lib/types.js';
 import { saveUpdateLocal } from '../lib/local-store.js';
 
@@ -16,6 +17,7 @@ export interface SendOptions {
   limit?: string;
   noEmail?: boolean;
   from?: string;
+  previewUrl?: string;
 }
 
 export interface SendResult {
@@ -67,6 +69,12 @@ export async function sendCommand(opts: SendOptions = {}): Promise<SendResult> {
     sinceRef: opts.since ?? '',
     scopeDocSnapshot: config.scopeDoc,
     hourlyRateSnapshot: config.hourlyRate,
+    previewUrl: opts.previewUrl ?? config.previewUrl,
+    projectToken: config.projectToken,
+    notifyChannel: config.notifyChannel,
+    slackWebhookSnapshot: config.slackWebhook,
+    devEmailSnapshot: config.devEmail,
+    stripeEnabledSnapshot: config.stripeEnabled,
     commits,
     draft,
     status: 'pending',
@@ -89,6 +97,18 @@ export async function sendCommand(opts: SendOptions = {}): Promise<SendResult> {
   console.log('Uploading...');
   await uploadUpdate(update);
   await saveUpdateLocal(update);
+
+  if (config.projectToken) {
+    try {
+      await appendToProjectIndex({
+        projectToken: config.projectToken,
+        projectName: config.projectName,
+        updateId: update.id,
+      });
+    } catch (e) {
+      console.log(`(could not update project index: ${e instanceof Error ? e.message : e})`);
+    }
+  }
 
   const url = `${config.viewerUrl}/u/${update.id}`;
   console.log('');

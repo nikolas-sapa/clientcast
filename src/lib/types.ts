@@ -10,7 +10,11 @@ export interface ProjectConfig {
   scopeDoc?: string;
   notifyChannel?: 'email' | 'slack' | 'none';
   slackWebhook?: string;
+  devEmail?: string;
+  previewUrl?: string;
+  stripeEnabled?: boolean;
   viewerUrl: string;
+  projectToken?: string;
   createdAt: string;
 }
 
@@ -41,6 +45,12 @@ export interface Update {
   sinceRef: string;
   scopeDocSnapshot?: string;
   hourlyRateSnapshot: number;
+  previewUrl?: string;
+  projectToken?: string;
+  notifyChannel?: 'email' | 'slack' | 'none';
+  slackWebhookSnapshot?: string;
+  devEmailSnapshot?: string;
+  stripeEnabledSnapshot?: boolean;
   commits: Commit[];
   draft: UpdateDraft;
   status: 'pending' | 'replied' | 'approved' | 'concerns_flagged';
@@ -72,4 +82,6 @@ export interface ScopeCreepFlag {
   estimatedCost: number;
   rationale: string;
   severity: 'minor' | 'moderate' | 'major';
+  paymentLink?: string;
+  paymentStatus?: 'pending' | 'sent' | 'paid';
 }

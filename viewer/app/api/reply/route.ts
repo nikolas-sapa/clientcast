@@ -3,6 +3,7 @@ import { customAlphabet } from 'nanoid';
 import { fetchUpdate, saveUpdate } from '@/lib/blob';
 import { complete } from '@/lib/anthropic';
 import { classifyReplyPrompt, scopeCreepPrompt, extractJSON } from '@/lib/prompts';
+import { notifyDeveloper } from '@/lib/notify';
 import type { Reply, ReplyClassification, ScopeCreepFlag } from '@/lib/types';
 
 const newId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 8);
@@ -65,6 +66,14 @@ export async function POST(req: Request) {
         : 'replied';
 
   await saveUpdate(update);
+
+  // Notify the developer (Slack or email) — fire-and-forget but await for serverless.
+  const viewerUrl = req.headers.get('origin') ?? `https://${req.headers.get('host')}`;
+  try {
+    await notifyDeveloper({ update, reply, flags, viewerUrl });
+  } catch {
+    // Notification failures shouldn't fail the reply submission.
+  }
 
   return NextResponse.json({ reply, scopeCreepFlags: flags });
 }
