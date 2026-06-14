@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Copy, Check, Github, ArrowRight, FileText, Bell, CreditCard, Clock, Eye } from 'lucide-react';
+import { Copy, Check, ArrowRight, FileText, Bell, CreditCard, Clock, Eye } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Toaster, toast } from 'sonner';
 
@@ -84,8 +84,8 @@ export default function ClientcastLanding() {
             client<span className="text-[#E55A1C]">cast</span>
           </span>
           <div className="flex items-center gap-5">
-            <a href="https://github.com/nikolas-sapa/clientcast" className="text-white/40 hover:text-white transition-colors">
-              <Github size={18} />
+            <a href="https://github.com/nikolas-sapa/clientcast" className="text-white/40 hover:text-white transition-colors font-mono text-xs tracking-wide">
+              GitHub
             </a>
             <CodeBlock code="npm install -g clientcast" />
           </div>
