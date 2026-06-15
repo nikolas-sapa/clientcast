@@ -5,6 +5,35 @@ import { Copy, Check, ArrowRight, FileText, Bell, CreditCard, Clock, Eye } from 
 import { motion } from 'motion/react';
 import { Toaster, toast } from 'sonner';
 
+/* Ambient backdrop — dot grid texture + a single warm accent bloom up top. */
+function Backdrop() {
+  return (
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+          maskImage: 'radial-gradient(ellipse 80% 50% at 50% 0%, #000 25%, transparent 75%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 80% 50% at 50% 0%, #000 25%, transparent 75%)',
+        }}
+      />
+      <div
+        className="absolute -top-48 left-1/2 -translate-x-1/2 h-[560px] w-[820px] rounded-full blur-[150px]"
+        style={{ background: 'radial-gradient(ellipse, rgba(229,90,28,0.13), transparent 70%)' }}
+      />
+    </div>
+  );
+}
+
+const reveal = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-80px' },
+  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+};
+
 const CodeBlock = ({ code }: { code: string }) => {
   const [copied, setCopied] = useState(false);
 
@@ -23,10 +52,10 @@ const CodeBlock = ({ code }: { code: string }) => {
   }, [code]);
 
   return (
-    <div className="group flex items-center justify-between bg-black border border-[#2A2A2E] rounded-[6px] px-4 py-3 font-mono text-sm w-full max-w-sm">
+    <div className="group flex items-center justify-between bg-black/60 border border-[#2A2A2E] hover:border-[#E55A1C]/40 rounded-[6px] px-4 py-3 font-mono text-sm w-full max-w-sm transition-colors">
       <span className="text-[#8B8D91] select-none mr-2.5">$</span>
       <code className="text-[#F3F2EE] flex-1 text-left">{code}</code>
-      <button onClick={copy} className="ml-3 p-1.5 text-[#8B8D91] hover:text-[#F3F2EE] transition-colors">
+      <button onClick={copy} className="ml-3 p-1.5 text-[#8B8D91] hover:text-[#E55A1C] transition-colors">
         {copied ? <Check size={14} /> : <Copy size={14} />}
       </button>
     </div>
@@ -74,11 +103,12 @@ const FEATURES = [
 
 export default function ClientcastLanding() {
   return (
-    <div className="min-h-screen selection:bg-[#E55A1C]/30 selection:text-[#E55A1C]">
+    <div className="relative min-h-screen selection:bg-[#E55A1C]/30 selection:text-[#E55A1C]">
+      <Backdrop />
       <Toaster theme="dark" position="bottom-right" />
 
       {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/[0.06] bg-[#0B0B0D]/80 backdrop-blur-md">
+      <nav className="fixed top-0 w-full z-50 border-b border-white/[0.06] bg-[#0B0B0D]/70 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <span className="font-[family-name:var(--font-sora)] font-semibold text-lg tracking-tight">
             client<span className="text-[#E55A1C]">cast</span>
@@ -94,7 +124,7 @@ export default function ClientcastLanding() {
 
       <main>
         {/* Hero */}
-        <section className="pt-40 pb-28 px-6 max-w-5xl mx-auto flex flex-col items-center text-center">
+        <section className="pt-44 pb-28 px-6 max-w-5xl mx-auto flex flex-col items-center text-center">
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#2A2A2E] bg-[#1A1A1E] text-[10px] uppercase tracking-widest text-[#8B8D91] mb-10">
               <span className="w-1.5 h-1.5 rounded-full bg-[#E55A1C]" />
@@ -103,27 +133,27 @@ export default function ClientcastLanding() {
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.07 }}
-            className="font-[family-name:var(--font-sora)] text-5xl md:text-6xl font-bold tracking-tight leading-[1.08] mb-6 max-w-3xl"
+            transition={{ delay: 0.06 }}
+            className="font-[family-name:var(--font-sora)] text-5xl md:text-[4rem] font-bold tracking-[-0.025em] leading-[1.04] mb-6 max-w-3xl"
           >
             Get paid for the work you ship.{' '}
             <span className="text-[#E55A1C]">Not the emails you write.</span>
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.13 }}
-            className="text-lg text-white/45 mb-12 max-w-xl leading-relaxed"
+            transition={{ delay: 0.12 }}
+            className="text-lg text-white/50 mb-12 max-w-xl leading-relaxed"
           >
             Share a live link instead of writing another status update. Clients see what you shipped,
             approve it, and trigger the invoice — all from one URL.
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.18 }}
             className="flex flex-col sm:flex-row items-center gap-4"
@@ -131,34 +161,43 @@ export default function ClientcastLanding() {
             <CodeBlock code="npm install -g clientcast" />
             <a
               href="#how"
-              className="flex items-center gap-2 text-sm text-white/40 hover:text-white/70 transition-colors"
+              className="group flex items-center gap-2 text-sm text-white/40 hover:text-white/80 transition-colors"
             >
-              See how it works <ArrowRight size={14} />
+              See how it works <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </a>
           </motion.div>
         </section>
 
         {/* How it works */}
         <section id="how" className="py-28 px-6 max-w-5xl mx-auto">
-          <p className="text-white/25 font-mono text-[10px] tracking-[0.15em] uppercase mb-20 text-center">
+          <motion.p {...reveal} className="text-white/25 font-mono text-[10px] tracking-[0.18em] uppercase mb-20 text-center">
             How it works
-          </p>
+          </motion.p>
 
           <div className="space-y-24">
             {STEPS.map((step, i) => (
-              <div
+              <motion.div
                 key={step.n}
+                {...reveal}
                 className={`grid md:grid-cols-2 gap-12 items-center ${i % 2 === 1 ? 'md:[&>*:first-child]:order-2' : ''}`}
               >
                 <div className="space-y-4">
-                  <span className="font-mono text-[#E55A1C] text-sm font-bold">{step.n}</span>
-                  <h3 className="font-[family-name:var(--font-sora)] text-2xl font-semibold leading-tight">
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-[#E55A1C] text-sm font-bold">{step.n}</span>
+                    <span className="h-px w-10 bg-[#E55A1C]/30" />
+                  </div>
+                  <h3 className="font-[family-name:var(--font-sora)] text-2xl font-semibold leading-tight tracking-tight">
                     {step.title}
                   </h3>
                   <p className="text-white/45 leading-relaxed">{step.body}</p>
                   <p className="text-white/30 text-sm leading-relaxed">{step.detail}</p>
                 </div>
-                <div className="bg-[#1A1A1E] border border-white/[0.06] rounded-[12px] p-7 space-y-4">
+                <div className="relative bg-[#1A1A1E] border border-white/[0.06] rounded-[12px] p-7 space-y-4 overflow-hidden">
+                  <div
+                    aria-hidden
+                    className="absolute top-0 left-0 right-0 h-px"
+                    style={{ background: 'linear-gradient(90deg, #E55A1C 0%, transparent 55%)' }}
+                  />
                   {step.code ? (
                     <>
                       <div className="font-mono text-[11px] text-[#8B8D91] tracking-widest uppercase mb-4">terminal</div>
@@ -180,35 +219,37 @@ export default function ClientcastLanding() {
                     </div>
                   )}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </section>
 
         {/* Features */}
         <section className="py-28 px-6 max-w-5xl mx-auto border-t border-white/[0.06]">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.06] rounded-[12px] overflow-hidden">
+          <motion.div {...reveal} className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.06] rounded-[12px] overflow-hidden">
             {FEATURES.map((f) => (
-              <div key={f.title} className="bg-[#0B0B0D] p-7 space-y-2.5 hover:bg-[#1A1A1E] transition-colors">
+              <div key={f.title} className="group bg-[#0B0B0D] p-7 space-y-2.5 hover:bg-[#1A1A1E] transition-colors">
                 <div className="flex items-center gap-2">
-                  {f.icon}
+                  <span className="transition-transform group-hover:scale-110">{f.icon}</span>
                   <h4 className="font-semibold text-sm">{f.title}</h4>
                 </div>
                 <p className="text-white/40 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
-          </div>
+          </motion.div>
         </section>
 
         {/* CTA */}
         <section className="py-32 px-6 max-w-2xl mx-auto text-center space-y-8">
-          <h2 className="font-[family-name:var(--font-sora)] text-4xl font-bold tracking-tight">
+          <motion.h2 {...reveal} className="font-[family-name:var(--font-sora)] text-4xl font-bold tracking-[-0.02em]">
             Stop writing update emails.
-          </h2>
-          <p className="text-white/45 leading-relaxed">
+          </motion.h2>
+          <motion.p {...reveal} className="text-white/45 leading-relaxed">
             One install. Ship faster. Get paid on approval. No more project management theater.
-          </p>
-          <CodeBlock code="npm install -g clientcast" />
+          </motion.p>
+          <motion.div {...reveal} className="flex justify-center">
+            <CodeBlock code="npm install -g clientcast" />
+          </motion.div>
         </section>
       </main>
 
