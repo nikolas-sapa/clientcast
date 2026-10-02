@@ -20,6 +20,9 @@ export async function fetchUpdate(id: string): Promise<Update | null> {
 }
 
 export async function saveUpdate(update: Update): Promise<void> {
+  if (update.slackWebhookSnapshot) {
+    throw new Error('Slack notifications require private destination storage. Credential-bearing updates cannot be saved publicly.');
+  }
   await put(key(update.id), JSON.stringify(update, null, 2), {
     access: 'public',
     contentType: 'application/json',

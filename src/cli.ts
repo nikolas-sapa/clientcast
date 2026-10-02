@@ -36,7 +36,7 @@ program
   .option('--no-email', 'skip email delivery (just upload)')
   .option('--from <addr>', 'override the From: address (default uses RESEND_API_KEY default)')
   .option('--preview-url <url>', 'override the live preview URL for this update')
-  .action(async (opts) => { await sendCommand(opts); });
+  .action(async (opts) => { await sendCommand({ ...opts, noEmail: opts.email === false }); });
 
 program
   .command('list')

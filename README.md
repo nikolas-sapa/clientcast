@@ -167,9 +167,15 @@ clientcast status
 
 ## Reply notifications
 
+Hosted Slack updates are blocked until webhook destinations can be stored privately.
+Choose email or `notifyChannel: "none"` in `.clientcast.json` to send hosted updates.
+Existing public updates that contain a webhook also reject further saves.
+If you previously sent a Slack-enabled update, rotate that webhook: its credential
+was included in the public update payload.
+
 When a client replies, Claude classifies the reply server-side and pings you. Pick one channel during `clientcast init`:
 
-- **Slack** — paste an Incoming Webhook URL. You get a formatted message with classification, reply text, and any flagged work.
+- **Slack** — configuration is retained locally, but hosted sends are currently blocked.
 - **Email** — provide your dev email. You get a styled HTML email with the reply and flag summary.
 
 If neither is set, replies are silent (you check `clientcast status`).
