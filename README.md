@@ -93,7 +93,7 @@ Any of them. clientcast reads your git commit history, not your source code, so 
 
 ## Requirements
 
-- Node 20+
+- Node 20.5+ (required by the existing subprocess dependency)
 - Claude Code CLI installed and signed in (`claude` command on PATH) — uses your Pro/Max subscription, no API key needed for the CLI
 - A git repository
 - (For email delivery) `RESEND_API_KEY` env var — get one free at [resend.com](https://resend.com). Without it, `clientcast send` still uploads and prints the URL — you just have to email it yourself.
@@ -256,6 +256,9 @@ clientcast init
 ```
 
 ## Development
+
+Use Node 20.6+ for development. The source MCP test uses Node's module
+registration API, introduced in 20.6.
 
 ```bash
 git clone https://github.com/nikolas-sapa/clientcast
