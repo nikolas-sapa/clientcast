@@ -21,12 +21,14 @@ interface InitOptions {
   slackWebhook?: string;
   notifyChannel?: 'email' | 'slack' | 'none';
   stripeEnabled?: boolean;
+  log?: (message: string) => void;
 }
 
 export async function initCommand(opts: InitOptions = {}): Promise<void> {
+  const log = opts.log ?? console.log;
   const cwd = process.cwd();
   if (isInitialized(cwd)) {
-    console.log(`Already initialized at ${configPath(cwd)}`);
+    log(`Already initialized at ${configPath(cwd)}`);
     return;
   }
 
@@ -93,10 +95,10 @@ export async function initCommand(opts: InitOptions = {}): Promise<void> {
   };
 
   saveConfig(cwd, config);
-  console.log(`✓ Initialized clientcast`);
-  console.log(`  Project ID:    ${config.projectId}`);
-  console.log(`  Project token: ${config.projectToken} (for /projects dashboard)`);
-  console.log(`  Config:        ${configPath(cwd)}`);
-  console.log(``);
-  console.log(`Next: make some commits, then run 'clientcast send'`);
+  log(`✓ Initialized clientcast`);
+  log(`  Project ID:    ${config.projectId}`);
+  log(`  Project token: ${config.projectToken} (for /projects dashboard)`);
+  log(`  Config:        ${configPath(cwd)}`);
+  log(``);
+  log(`Next: make some commits, then run 'clientcast send'`);
 }

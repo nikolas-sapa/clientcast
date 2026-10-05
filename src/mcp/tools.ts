@@ -17,6 +17,7 @@ export const InitSchema = z.object({
 export async function clientInit(input: z.infer<typeof InitSchema>): Promise<string> {
   await initCommand({
     yes: true,
+    log: console.error,
     projectName: input.projectName,
     clientName: input.clientName,
     clientEmail: input.clientEmail,
@@ -38,6 +39,7 @@ export async function clientSend(input: z.infer<typeof SendSchema>): Promise<str
     since: input.since,
     model: input.model,
     dryRun: input.dryRun,
+    log: console.error,
   });
   return JSON.stringify(
     {

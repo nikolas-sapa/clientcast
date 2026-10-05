@@ -9,7 +9,12 @@ function ensureDir(): void {
   if (!existsSync(STORE_DIR)) mkdirSync(STORE_DIR, { recursive: true });
 }
 
+function validateId(id: string): void {
+  if (typeof id !== 'string' || !/^[A-Za-z0-9_-]+$/.test(id)) throw new Error('Invalid update ID');
+}
+
 export async function saveUpdateLocal(update: Update): Promise<string> {
+  validateId(update.id);
   ensureDir();
   const path = join(STORE_DIR, `${update.id}.json`);
   writeFileSync(path, JSON.stringify(update, null, 2));
@@ -17,6 +22,7 @@ export async function saveUpdateLocal(update: Update): Promise<string> {
 }
 
 export async function loadUpdateLocal(id: string): Promise<Update | null> {
+  validateId(id);
   const path = join(STORE_DIR, `${id}.json`);
   if (!existsSync(path)) return null;
   return JSON.parse(readFileSync(path, 'utf8')) as Update;

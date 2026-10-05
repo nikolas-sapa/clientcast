@@ -12,6 +12,9 @@ export interface BlobOptions {
 }
 
 export async function uploadUpdate(update: Update, opts: BlobOptions = {}): Promise<string> {
+  if (update.slackWebhookSnapshot) {
+    throw new Error('Slack notifications require private destination storage. Use email or no notifications for hosted updates.');
+  }
   const token = opts.token ?? process.env.BLOB_READ_WRITE_TOKEN;
   if (!token) {
     throw new Error(

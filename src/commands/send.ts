@@ -18,6 +18,7 @@ export interface SendOptions {
   noEmail?: boolean;
   from?: string;
   previewUrl?: string;
+  log?: (message: string) => void;
 }
 
 export interface SendResult {
@@ -30,6 +31,7 @@ export interface SendResult {
 }
 
 export async function sendCommand(opts: SendOptions = {}): Promise<SendResult> {
+  const log = opts.log ?? console.log;
   const cwd = process.cwd();
   const config = loadConfig(cwd);
 
@@ -42,12 +44,12 @@ export async function sendCommand(opts: SendOptions = {}): Promise<SendResult> {
     );
   }
 
-  console.log(`Reading commits${opts.since ? ` since ${opts.since}` : ''}...`);
+  log(`Reading commits${opts.since ? ` since ${opts.since}` : ''}...`);
   const limit = opts.limit ? Number.parseInt(opts.limit, 10) : 50;
   const commits = await readCommits(cwd, { since: opts.since, limit });
 
   if (commits.length === 0) {
-    console.log('No new commits.');
+    log('No new commits.');
     return {
       updateId: '',
       preview: { subject: '', body: '' },
@@ -55,7 +57,7 @@ export async function sendCommand(opts: SendOptions = {}): Promise<SendResult> {
     };
   }
 
-  console.log(`Drafting update from ${commits.length} commits...`);
+  log(`Drafting update from ${commits.length} commits...`);
   const draft = await claudeJSON<UpdateDraft>(draftUpdatePrompt(config, commits), {
     model: opts.model ?? 'sonnet',
   });
@@ -72,7 +74,7 @@ export async function sendCommand(opts: SendOptions = {}): Promise<SendResult> {
     previewUrl: opts.previewUrl ?? config.previewUrl,
     projectToken: config.projectToken,
     notifyChannel: config.notifyChannel,
-    slackWebhookSnapshot: config.slackWebhook,
+    slackWebhookSnapshot: config.notifyChannel === 'slack' ? config.slackWebhook : undefined,
     devEmailSnapshot: config.devEmail,
     stripeEnabledSnapshot: config.stripeEnabled,
     commits,
@@ -85,16 +87,16 @@ export async function sendCommand(opts: SendOptions = {}): Promise<SendResult> {
   const preview = renderEmail(update);
 
   if (opts.dryRun) {
-    console.log('');
-    console.log(`Subject: ${preview.subject}`);
-    console.log('');
-    console.log(preview.body);
-    console.log('');
-    console.log('(dry run — not uploaded)');
+    log('');
+    log(`Subject: ${preview.subject}`);
+    log('');
+    log(preview.body);
+    log('');
+    log('(dry run — not uploaded)');
     return { updateId: update.id, preview, commitsCount: commits.length };
   }
 
-  console.log('Uploading...');
+  log('Uploading...');
   await uploadUpdate(update);
   await saveUpdateLocal(update);
 
@@ -106,21 +108,21 @@ export async function sendCommand(opts: SendOptions = {}): Promise<SendResult> {
         updateId: update.id,
       });
     } catch (e) {
-      console.log(`(could not update project index: ${e instanceof Error ? e.message : e})`);
+      log(`(could not update project index: ${e instanceof Error ? e.message : e})`);
     }
   }
 
   const url = `${config.viewerUrl}/u/${update.id}`;
-  console.log('');
-  console.log(`✓ Update uploaded: ${url}`);
+  log('');
+  log(`✓ Update uploaded: ${url}`);
 
   let emailDelivered: boolean | undefined;
   let emailReason: string | undefined;
 
   if (opts.noEmail) {
-    console.log(`(--no-email — skipping delivery. Send this link to ${config.clientName}.)`);
+    log(`(--no-email — skipping delivery. Send this link to ${config.clientName}.)`);
   } else {
-    console.log(`Delivering to ${config.clientEmail}...`);
+    log(`Delivering to ${config.clientEmail}...`);
     const result = await deliverUpdateEmail({
       update,
       to: config.clientEmail,
@@ -130,10 +132,10 @@ export async function sendCommand(opts: SendOptions = {}): Promise<SendResult> {
     emailDelivered = result.delivered;
     emailReason = result.reason;
     if (result.delivered) {
-      console.log(`✓ Email delivered to ${config.clientEmail}`);
+      log(`✓ Email delivered to ${config.clientEmail}`);
     } else {
-      console.log(`(email not delivered: ${result.reason})`);
-      console.log(`Send the link manually: ${url}`);
+      log(`(email not delivered: ${result.reason})`);
+      log(`Send the link manually: ${url}`);
     }
   }
 

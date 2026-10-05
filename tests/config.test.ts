@@ -30,6 +30,21 @@ describe('config', () => {
     expect(loadConfig(dir)).toEqual(config);
   });
 
+  it('preserves optional notification, preview, billing and project fields', () => {
+    const config = makeConfig({ devEmail: 'dev@example.com', previewUrl: 'https://preview.example.com',
+      stripeEnabled: false, projectToken: 'project-token' });
+    saveConfig(dir, config);
+    expect(loadConfig(dir)).toEqual(config);
+  });
+
+  it.each([
+    { devEmail: 'not-email' }, { previewUrl: 'not-url' },
+    { stripeEnabled: 'yes' }, { projectToken: '' },
+  ])('rejects malformed optional fields: %j', (fields) => {
+    writeFileSync(configPath(dir), JSON.stringify({ ...makeConfig(), ...fields }));
+    expect(() => loadConfig(dir)).toThrow();
+  });
+
   it('isInitialized returns false before save, true after', () => {
     expect(isInitialized(dir)).toBe(false);
     saveConfig(dir, makeConfig());

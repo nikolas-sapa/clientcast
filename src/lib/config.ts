@@ -12,6 +12,10 @@ const ConfigSchema = z.object({
   scopeDoc: z.string().optional(),
   notifyChannel: z.enum(['email', 'slack', 'none']).optional(),
   slackWebhook: z.string().url().optional(),
+  devEmail: z.string().email().optional(),
+  previewUrl: z.string().url().optional(),
+  stripeEnabled: z.boolean().optional(),
+  projectToken: z.string().min(1).optional(),
   viewerUrl: z.string().url(),
   createdAt: z.string(),
 });
